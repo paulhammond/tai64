@@ -1,6 +1,7 @@
 package tai64
 
 import (
+	"encoding/binary"
 	"errors"
 	"strconv"
 	"time"
@@ -62,6 +63,18 @@ func ParseTai64n(s string) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, ParseError
 	}
+	if sec > 1<<63 {
+		return time.Time{}, ParseError
+	}
+	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
+}
+
+func DecodeTai64n(b []byte) (time.Time, error) {
+	if len(b) != 12 {
+		return time.Time{}, ParseError
+	}
+	sec := binary.BigEndian.Uint64(b[0:8])
+	nsec := binary.BigEndian.Uint32(b[8:12])
 	if sec > 1<<63 {
 		return time.Time{}, ParseError
 	}
