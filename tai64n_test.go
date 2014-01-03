@@ -30,6 +30,21 @@ var tai64nTests = []struct {
 	{"@400000002a2b2c2d00000000", []byte{0x40, 0x00, 0x00, 0x00, 0x2a, 0x2b, 0x2c, 0x2d, 0x00, 0x00, 0x00, 0x00}, "1992-06-02T08:06:43Z"},
 }
 
+var tai64Tests = []struct {
+	hex   string
+	bytes []byte
+	time  string
+}{
+	{"@4000000037c219bf", []byte{0x40, 0x00, 0x00, 0x00, 0x37, 0xc2, 0x19, 0xbf}, "1999-08-24T04:03:43Z"},
+	{"@4000000052c65e55", []byte{0x40, 0x00, 0x00, 0x00, 0x52, 0xc6, 0x5e, 0x55}, "2014-01-03T06:52:34Z"},
+	{"@4000000043b94106", []byte{0x40, 0x00, 0x00, 0x00, 0x43, 0xb9, 0x41, 0x06}, "2006-01-02T15:04:05Z"},
+	{"@4000000000000000", []byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, "1969-12-31T23:59:50Z"},
+	{"@4000000000000001", []byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}, "1969-12-31T23:59:51Z"},
+	{"@400000000000000A", []byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A}, "1970-01-01T00:00:00Z"},
+	{"@3FFFFFFFFFFFFFFF", []byte{0x3F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, "1969-12-31T23:59:49Z"},
+	{"@400000002a2b2c2d", []byte{0x40, 0x00, 0x00, 0x00, 0x2a, 0x2b, 0x2c, 0x2d}, "1992-06-02T08:06:43Z"},
+}
+
 func TestParseTai64n(t *testing.T) {
 	for _, test := range tai64nTests {
 		result, err := ParseTai64n(test.hex)
@@ -82,6 +97,70 @@ func TestDecodeTai64n(t *testing.T) {
 		[]byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 		// too big a number
 		[]byte{0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+	}
+	for _, test := range bad {
+		result, err := DecodeTai64n(test)
+		if err != ParseError {
+			t.Errorf("expected %v, got %v", ParseError, err)
+		}
+		if !result.IsZero() {
+			t.Errorf("expected zero time, got %v", result)
+		}
+	}
+}
+
+func TestParseTai64(t *testing.T) {
+	for _, test := range tai64Tests {
+		result, err := ParseTai64(test.hex)
+		if err != nil {
+			t.Errorf("expected nil error, got %v", err)
+		}
+		if out := result.UTC().Format(time.RFC3339); out != test.time {
+			t.Errorf("got %v, expected %v", out, test.time)
+		}
+	}
+
+	bad := []string{
+		// no @
+		"4000000037c219bf",
+		"4000000037c219bf1",
+		// too short
+		"@4000000037c219b",
+		// too long
+		"@4000000037c219bf1",
+		// too big a number
+		"@f000000037c219bf",
+		// not hex
+		"@G000000000000000",
+	}
+	for _, test := range bad {
+		result, err := ParseTai64n(test)
+		if err != ParseError {
+			t.Errorf("expected %v, got %v", ParseError, err)
+		}
+		if !result.IsZero() {
+			t.Errorf("expected zero time, got %v", result)
+		}
+	}
+}
+
+func TestDecodeTai64(t *testing.T) {
+	for _, test := range tai64Tests {
+		result, err := DecodeTai64(test.bytes)
+		if err != nil {
+			t.Errorf("expected nil error, got %v", err)
+		}
+		if out := result.UTC().Format(time.RFC3339); out != test.time {
+			t.Errorf("got %v, expected %v", out, test.time)
+		}
+	}
+	bad := [][]byte{
+		// too long
+		[]byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+		// too short
+		[]byte{0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+		// too big a number
+		[]byte{0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 	}
 	for _, test := range bad {
 		result, err := DecodeTai64n(test)

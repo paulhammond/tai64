@@ -45,6 +45,20 @@ var leapSeconds = []int64{
 
 var ParseError = errors.New("Parse Error")
 
+func ParseTai64(s string) (time.Time, error) {
+	if len(s) != 17 || s[0] != '@' {
+		return time.Time{}, ParseError
+	}
+	sec, err := strconv.ParseUint(s[1:], 16, 64)
+	if err != nil {
+		return time.Time{}, ParseError
+	}
+	if sec > 1<<63 {
+		return time.Time{}, ParseError
+	}
+	return TaiDate(int64(sec-(1<<62)), 0), nil
+}
+
 func ParseTai64n(s string) (time.Time, error) {
 	// http://cr.yp.to/daemontools/tai64n.html
 	// http://cr.yp.to/libtai/tai64.html
@@ -67,6 +81,17 @@ func ParseTai64n(s string) (time.Time, error) {
 		return time.Time{}, ParseError
 	}
 	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
+}
+
+func DecodeTai64(b []byte) (time.Time, error) {
+	if len(b) != 8 {
+		return time.Time{}, ParseError
+	}
+	sec := binary.BigEndian.Uint64(b)
+	if sec > 1<<63 {
+		return time.Time{}, ParseError
+	}
+	return TaiDate(int64(sec-(1<<62)), 0), nil
 }
 
 func DecodeTai64n(b []byte) (time.Time, error) {
