@@ -71,8 +71,8 @@ func TestParseTai64n(t *testing.T) {
 	}
 	for _, test := range bad {
 		result, err := ParseTai64n(test)
-		if err != ParseError {
-			t.Errorf("expected %v, got %v", ParseError, err)
+		if err != parseError {
+			t.Errorf("expected %v, got %v", parseError, err)
 		}
 		if !result.IsZero() {
 			t.Errorf("expected zero time, got %v", result)
@@ -100,8 +100,8 @@ func TestDecodeTai64n(t *testing.T) {
 	}
 	for _, test := range bad {
 		result, err := DecodeTai64n(test)
-		if err != ParseError {
-			t.Errorf("expected %v, got %v", ParseError, err)
+		if err != parseError {
+			t.Errorf("expected %v, got %v", parseError, err)
 		}
 		if !result.IsZero() {
 			t.Errorf("expected zero time, got %v", result)
@@ -135,8 +135,8 @@ func TestParseTai64(t *testing.T) {
 	}
 	for _, test := range bad {
 		result, err := ParseTai64n(test)
-		if err != ParseError {
-			t.Errorf("expected %v, got %v", ParseError, err)
+		if err != parseError {
+			t.Errorf("expected %v, got %v", parseError, err)
 		}
 		if !result.IsZero() {
 			t.Errorf("expected zero time, got %v", result)
@@ -164,8 +164,8 @@ func TestDecodeTai64(t *testing.T) {
 	}
 	for _, test := range bad {
 		result, err := DecodeTai64n(test)
-		if err != ParseError {
-			t.Errorf("expected %v, got %v", ParseError, err)
+		if err != parseError {
+			t.Errorf("expected %v, got %v", parseError, err)
 		}
 		if !result.IsZero() {
 			t.Errorf("expected zero time, got %v", result)

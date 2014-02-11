@@ -2,7 +2,6 @@ package tai64
 
 import (
 	"encoding/binary"
-	"errors"
 	"strconv"
 	"time"
 )
@@ -43,18 +42,26 @@ var leapSeconds = []int64{
 	63072009,
 }
 
-var ParseError = errors.New("Parse Error")
+type Error struct {
+	message string
+}
+
+func (e Error) Error() string {
+	return e.message
+}
+
+var parseError = Error{"Parse Error"}
 
 func ParseTai64(s string) (time.Time, error) {
 	if len(s) != 17 || s[0] != '@' {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	sec, err := strconv.ParseUint(s[1:], 16, 64)
 	if err != nil {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	if sec > 1<<63 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	return TaiDate(int64(sec-(1<<62)), 0), nil
 }
@@ -65,43 +72,43 @@ func ParseTai64n(s string) (time.Time, error) {
 	// "A TAI64N label is normally stored or communicated in external TAI64N
 	// format, consisting of twelve 8-bit bytes", which is 24 chars of hex
 	if len(s) != 25 || s[0] != '@' {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	// "The first eight bytes are the TAI64 label"
 	sec, err := strconv.ParseUint(s[1:17], 16, 64)
 	if err != nil {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	// "The last four bytes are the nanosecond counter in big-endian format"
 	nsec, err := strconv.ParseUint(s[17:25], 16, 32)
 	if err != nil {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	if sec > 1<<63 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
 }
 
 func DecodeTai64(b []byte) (time.Time, error) {
 	if len(b) != 8 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	sec := binary.BigEndian.Uint64(b)
 	if sec > 1<<63 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	return TaiDate(int64(sec-(1<<62)), 0), nil
 }
 
 func DecodeTai64n(b []byte) (time.Time, error) {
 	if len(b) != 12 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	sec := binary.BigEndian.Uint64(b[0:8])
 	nsec := binary.BigEndian.Uint32(b[8:12])
 	if sec > 1<<63 {
-		return time.Time{}, ParseError
+		return time.Time{}, parseError
 	}
 	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
 }
