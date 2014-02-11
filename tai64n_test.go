@@ -1,9 +1,22 @@
+// Copyright 2014 Paul Hammond.
+// This software is licensed under the MIT license, see LICENSE.txt for details.
+
 package tai64
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
+
+func ExampleParseTai64() {
+	t, err := ParseTai64n("@4000000037c219bf2ef02e94")
+	if err == nil {
+		fmt.Println(t.UTC())
+	}
+	// Output:
+	// 1999-08-24 04:03:43.7874925 +0000 UTC
+}
 
 var tai64nTests = []struct {
 	hex   string

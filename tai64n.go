@@ -1,3 +1,9 @@
+// Copyright 2014 Paul Hammond.
+// This software is licensed under the MIT license, see LICENSE.txt for details.
+
+// Package tai64 implements conversion from the TAI64 and TAI64N formats. See
+// http://cr.yp.to/daemontools/tai64n.html and
+// http://cr.yp.to/libtai/tai64.html for more information on these formats.
 package tai64
 
 import (
@@ -42,6 +48,7 @@ var leapSeconds = []int64{
 	63072009,
 }
 
+// Error is returned when parsing or decoding fails.
 type Error struct {
 	message string
 }
@@ -52,6 +59,8 @@ func (e Error) Error() string {
 
 var parseError = Error{"Parse Error"}
 
+// ParseTai64 parses a string containing a hex TAI64 string into a time.Time.
+// If the string cannot be parsed an Error is returned.
 func ParseTai64(s string) (time.Time, error) {
 	if len(s) != 17 || s[0] != '@' {
 		return time.Time{}, parseError
@@ -66,9 +75,9 @@ func ParseTai64(s string) (time.Time, error) {
 	return EpochTime(int64(sec-(1<<62)), 0), nil
 }
 
+// ParseTai64n parses a string containing a hex TAI64N string into a
+// time.Time. If the string cannot be parsed an Error is returned.
 func ParseTai64n(s string) (time.Time, error) {
-	// http://cr.yp.to/daemontools/tai64n.html
-	// http://cr.yp.to/libtai/tai64.html
 	// "A TAI64N label is normally stored or communicated in external TAI64N
 	// format, consisting of twelve 8-bit bytes", which is 24 chars of hex
 	if len(s) != 25 || s[0] != '@' {
@@ -90,6 +99,8 @@ func ParseTai64n(s string) (time.Time, error) {
 	return EpochTime(int64(sec-(1<<62)), int64(nsec)), nil
 }
 
+// DecodeTai64 decodes a timestamp in binary external TAI64 format into a
+// time.Time. If the data cannot be decoded an Error is returned.
 func DecodeTai64(b []byte) (time.Time, error) {
 	if len(b) != 8 {
 		return time.Time{}, parseError
@@ -101,6 +112,8 @@ func DecodeTai64(b []byte) (time.Time, error) {
 	return EpochTime(int64(sec-(1<<62)), 0), nil
 }
 
+// DecodeTai64n decodes a timestamp in binary external TAI64N format into a
+// time.Time. If the data cannot be decoded an Error is returned.
 func DecodeTai64n(b []byte) (time.Time, error) {
 	if len(b) != 12 {
 		return time.Time{}, parseError
@@ -113,6 +126,8 @@ func DecodeTai64n(b []byte) (time.Time, error) {
 	return EpochTime(int64(sec-(1<<62)), int64(nsec)), nil
 }
 
+// EpochTime returns the time.Time at secs seconds and nsec nanoseconds since
+// the beginning of January 1, 1970 TAI.
 func EpochTime(secs, nsecs int64) time.Time {
 	offset := len(leapSeconds) + 10
 	for _, l := range leapSeconds {
