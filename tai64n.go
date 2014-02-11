@@ -63,7 +63,7 @@ func ParseTai64(s string) (time.Time, error) {
 	if sec > 1<<63 {
 		return time.Time{}, parseError
 	}
-	return TaiDate(int64(sec-(1<<62)), 0), nil
+	return EpochTime(int64(sec-(1<<62)), 0), nil
 }
 
 func ParseTai64n(s string) (time.Time, error) {
@@ -87,7 +87,7 @@ func ParseTai64n(s string) (time.Time, error) {
 	if sec > 1<<63 {
 		return time.Time{}, parseError
 	}
-	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
+	return EpochTime(int64(sec-(1<<62)), int64(nsec)), nil
 }
 
 func DecodeTai64(b []byte) (time.Time, error) {
@@ -98,7 +98,7 @@ func DecodeTai64(b []byte) (time.Time, error) {
 	if sec > 1<<63 {
 		return time.Time{}, parseError
 	}
-	return TaiDate(int64(sec-(1<<62)), 0), nil
+	return EpochTime(int64(sec-(1<<62)), 0), nil
 }
 
 func DecodeTai64n(b []byte) (time.Time, error) {
@@ -110,10 +110,10 @@ func DecodeTai64n(b []byte) (time.Time, error) {
 	if sec > 1<<63 {
 		return time.Time{}, parseError
 	}
-	return TaiDate(int64(sec-(1<<62)), int64(nsec)), nil
+	return EpochTime(int64(sec-(1<<62)), int64(nsec)), nil
 }
 
-func TaiDate(secs, nsecs int64) time.Time {
+func EpochTime(secs, nsecs int64) time.Time {
 	offset := len(leapSeconds) + 10
 	for _, l := range leapSeconds {
 		offset--
