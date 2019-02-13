@@ -20,6 +20,8 @@ import (
 var leapSeconds = []int64{
 	// subtract 2208988800 to convert from NTP datetime to unix seconds
 	// then add number of previous leap seconds to get TAI-since-unix-epoch
+	1483228836,
+	1435708835,
 	1341100834,
 	1230768033,
 	1136073632,
