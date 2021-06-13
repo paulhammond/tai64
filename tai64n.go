@@ -59,7 +59,8 @@ func (e Error) Error() string {
 	return e.message
 }
 
-var parseError = Error{"Parse Error"}
+var parseError = Error{"tai64 parse error"}
+var decodeError = Error{"tai64 decode error"}
 
 // ParseTai64 parses a string containing a hex TAI64 string into a time.Time.
 // If the string cannot be parsed an Error is returned.
@@ -105,11 +106,11 @@ func ParseTai64n(s string) (time.Time, error) {
 // time.Time. If the data cannot be decoded an Error is returned.
 func DecodeTai64(b []byte) (time.Time, error) {
 	if len(b) != 8 {
-		return time.Time{}, parseError
+		return time.Time{}, decodeError
 	}
 	sec := binary.BigEndian.Uint64(b)
 	if sec > 1<<63 {
-		return time.Time{}, parseError
+		return time.Time{}, decodeError
 	}
 	return EpochTime(int64(sec-(1<<62)), 0), nil
 }
@@ -118,12 +119,12 @@ func DecodeTai64(b []byte) (time.Time, error) {
 // time.Time. If the data cannot be decoded an Error is returned.
 func DecodeTai64n(b []byte) (time.Time, error) {
 	if len(b) != 12 {
-		return time.Time{}, parseError
+		return time.Time{}, decodeError
 	}
 	sec := binary.BigEndian.Uint64(b[0:8])
 	nsec := binary.BigEndian.Uint32(b[8:12])
 	if sec > 1<<63 {
-		return time.Time{}, parseError
+		return time.Time{}, decodeError
 	}
 	return EpochTime(int64(sec-(1<<62)), int64(nsec)), nil
 }
