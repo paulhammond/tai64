@@ -147,7 +147,7 @@ func TestParseTai64(t *testing.T) {
 		"@G000000000000000",
 	}
 	for _, test := range bad {
-		result, err := ParseTai64n(test)
+		result, err := ParseTai64(test)
 		if err != parseError {
 			t.Errorf("expected %v, got %v", parseError, err)
 		}
@@ -176,7 +176,7 @@ func TestDecodeTai64(t *testing.T) {
 		{0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 	}
 	for _, test := range bad {
-		result, err := DecodeTai64n(test)
+		result, err := DecodeTai64(test)
 		if err != parseError {
 			t.Errorf("expected %v, got %v", parseError, err)
 		}
